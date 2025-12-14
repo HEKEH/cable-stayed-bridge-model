@@ -1,0 +1,5 @@
+{
+  "name": "Cable-Stayed Bridge Viewer",
+  "description": "An interactive, zoomable vector exploration of a cable-stayed bridge architecture with day/night modes.",
+  "requestFramePermissions": []
+}
