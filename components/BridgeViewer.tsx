@@ -90,30 +90,41 @@ const Water = ({ isNight }: { isNight: boolean }) => {
 
 const Pylon = ({ x, isNight }: { x: number, isNight: boolean }) => {
   const color = isNight ? "#64748b" : "#e2e8f0";
+  const pierColor = "#334155";
+  
+  // Calculate heights
+  // Pier goes from bottom (let's say -5 to cover water depth) to Deck Y
+  const pierHeight = DECK_Y + 5;
+  const pierY = (DECK_Y - 5) / 2; // Center point
+  
+  // Tower goes from Deck Y to PYLON_HEIGHT
+  const towerHeight = PYLON_HEIGHT - DECK_Y;
+  const towerY = DECK_Y + towerHeight / 2;
+
   return (
     <group position={[x, 0, 0]}>
-      {/* Foundation */}
-      <mesh position={[0, DECK_Y / 2, 0]}>
-        <boxGeometry args={[4, DECK_Y + 10, DECK_WIDTH + 4]} />
-        <meshStandardMaterial color="#475569" />
+      {/* Pier (Structure BELOW the deck) */}
+      <mesh position={[0, pierY, 0]}>
+        <boxGeometry args={[6, pierHeight, DECK_WIDTH + 4]} />
+        <meshStandardMaterial color={pierColor} />
       </mesh>
       
-      {/* Tower Legs */}
-      <mesh position={[0, PYLON_HEIGHT / 2, 6]}>
-        <boxGeometry args={[3, PYLON_HEIGHT, 2]} />
+      {/* Tower Legs (Structure ABOVE the deck) */}
+      <mesh position={[0, towerY, 6]}>
+        <boxGeometry args={[3, towerHeight, 2]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <mesh position={[0, PYLON_HEIGHT / 2, -6]}>
-        <boxGeometry args={[3, PYLON_HEIGHT, 2]} />
+      <mesh position={[0, towerY, -6]}>
+        <boxGeometry args={[3, towerHeight, 2]} />
         <meshStandardMaterial color={color} />
       </mesh>
 
-      {/* Cross beams */}
-      <mesh position={[0, PYLON_HEIGHT * 0.4, 0]}>
+      {/* Cross beams (Between legs above deck) */}
+      <mesh position={[0, DECK_Y + towerHeight * 0.4, 0]}>
         <boxGeometry args={[2.5, 2, 12]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <mesh position={[0, PYLON_HEIGHT * 0.8, 0]}>
+      <mesh position={[0, DECK_Y + towerHeight * 0.8, 0]}>
         <boxGeometry args={[2.5, 2, 12]} />
         <meshStandardMaterial color={color} />
       </mesh>
@@ -140,7 +151,7 @@ const Cables = ({ isNight }: { isNight: boolean }) => {
       // Define vertical span for cable attachment on tower
       // PYLON_HEIGHT is 50. Let's attach between 35 and 48.
       const towerAttachTop = PYLON_HEIGHT - 2; 
-      const towerAttachBottom = PYLON_HEIGHT * 0.7; 
+      const towerAttachBottom = DECK_Y + (PYLON_HEIGHT - DECK_Y) * 0.5; // Start halfway up the tower part
 
       for (let i = 1; i <= CABLES_PER_SIDE; i++) {
         // Semi-Fan arrangement to prevent crossing:
@@ -209,36 +220,6 @@ const Deck = ({ isNight }: { isNight: boolean }) => {
         <boxGeometry args={[BRIDGE_LENGTH, 1, 0.5]} />
         <meshStandardMaterial color="#cbd5e1" />
       </mesh>
-
-      {/* Street Lights */}
-      {Array.from({ length: 20 }).map((_, i) => {
-        const x = -BRIDGE_LENGTH/2 + i * (BRIDGE_LENGTH/20) + 15;
-        if (Math.abs(x - PYLON_POSITIONS[0]) < 10 || Math.abs(x - PYLON_POSITIONS[1]) < 10) return null;
-        return (
-            <group key={i} position={[x, DECK_Y, 0]}>
-                <mesh position={[0, 4, 0]}>
-                     <boxGeometry args={[0.2, 8, 0.2]} />
-                     <meshStandardMaterial color="#64748b" />
-                </mesh>
-                <mesh position={[0, 8, 0]}>
-                     <boxGeometry args={[0.5, 0.2, DECK_WIDTH - 2]} />
-                     <meshStandardMaterial color="#64748b" />
-                </mesh>
-                {/* Bulbs */}
-                <mesh position={[0, 7.8, 4]}>
-                    <boxGeometry args={[1, 0.2, 0.5]} />
-                    <meshStandardMaterial color="#fef08a" emissive="#fef08a" emissiveIntensity={isNight ? 2 : 0} />
-                </mesh>
-                {isNight && <pointLight position={[0, 7, 4]} color="#fef08a" intensity={1.5} distance={25} decay={2} />}
-                
-                <mesh position={[0, 7.8, -4]}>
-                    <boxGeometry args={[1, 0.2, 0.5]} />
-                    <meshStandardMaterial color="#fef08a" emissive="#fef08a" emissiveIntensity={isNight ? 2 : 0} />
-                </mesh>
-                {isNight && <pointLight position={[0, 7, -4]} color="#fef08a" intensity={1.5} distance={25} decay={2} />}
-            </group>
-        )
-      })}
     </group>
   );
 };
